@@ -6,41 +6,56 @@
     </header>
     <body>
         <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">Café</th>
-                <th scope="col">Cantidad disponible</th>
-                <th scope="col">Precio</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="(coffee, type) in coffeeTypes" :key="type">
-                <td>{{type}}</td>
-                <td>{{ coffee.quantity }}</td>
-                <td>{{ coffee.price }}</td>
-            </tr>
-        </tbody>
+            <thead>
+                <tr>
+                    <th scope="col">Café</th>
+                    <th scope="col">Cantidad disponible</th>
+                    <th scope="col">Precio</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(coffee, type) in coffeeTypes" :key="type">
+                    <td>{{type}}</td>
+                    <td>{{ coffee.quantity }}</td>
+                    <td>{{ coffee.price }}</td>
+                </tr>
+            </tbody>
         </table>
-        <div>
-            <div class="dropdown">
+        <div class="d-flex justify-content-center align-items-center" style="padding-left: 20px;">
+            <div class="dropdown mr-5">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Seleccione un tipo de café:
+                    {{ selectedCoffee || 'Seleccione un tipo de café' }}
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <a class="dropdown-item" href="#" v-for="(coffee, type) in coffeeTypes" :key="type">
-                        {{type}}
+                    <a class="dropdown-item" href="#" v-for="(coffee, type) in coffeeTypes" :key="type" @click="selectedCoffee = type">
+                        {{ type }}
                     </a>
                 </div>
             </div>
-            <label for="quantity">Cantidad:</label>
-            <input type="number" value="0" min="0" max="20">
-            <button>
-                Agregar a la órden
-            </button>
-            <button>
-                Pagar
+            <div class="mr-5">
+                <label for="quantity">Cantidad:</label>
+                <input type="number" id="quantity" value="0" min="0" max="20" class="form-control" v-model="selectedQuantity">
+            </div>
+            <button class="btn btn-primary mr-5" @click="AddCoffeeToOrder(selectedCoffee, selectedQuantity)">
+                Agregar a la orden
             </button>
         </div>
+        <div style="padding: 10px;"><strong>Órden:</strong></div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Café</th>
+                    <th scope="col">Cantidad</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(quantity, type) in order" :key="quantity">
+                    <td>{{type}}</td>
+                    <td>{{ quantity }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div>Monto total: {{ totalAmount }}</div>
     </body>
 </template>
 
@@ -55,14 +70,38 @@
                     Late: {quantity: 10, price: 1350},
                     Mocachino: {quantity: 15, price: 1500}
                 },
+                selectedCoffee: '',
+                selectedQuantity: 0,
                 order: {
                     Americano: 0,
                     Capuchino: 0,
                     Late: 0,
                     Mocachino: 0
                 },
-
+                totalAmount: 0,
             }
+        },
+        methods: {
+            AddCoffeeToOrder(coffeeType, quantity) {
+                if (this.CheckQuantity(coffeeType, quantity)) {
+                    this.order[coffeeType] += quantity
+                    this.UpdateCoffeeQuantity(coffeeType, quantity)
+                } else {
+                    alert("La cantidad ingresada supera la cantidad disponible.");
+                }
+                this.selectedCoffee = ''
+                this.selectedQuantity = 0
+            },
+            CheckQuantity(coffeeType, quantity) {
+                return (this.coffeeTypes[coffeeType].quantity >= quantity)
+            },
+            UpdateCoffeeQuantity(coffeeType, quantity) {
+                this.coffeeTypes[coffeeType].quantity -= quantity
+                this.UpdateTotalAmount(this.coffeeTypes[coffeeType].price, quantity)
+            },
+            UpdateTotalAmount(coffeePrice, quantity) {
+                this.totalAmount += (coffeePrice * quantity)
+            },
         }
     }
 </script>
