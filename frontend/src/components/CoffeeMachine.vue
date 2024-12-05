@@ -4,10 +4,10 @@
             Máquina Expendedora de Café Bianchini
         </div>
     </header>
-    <body v-if="notEnoughCoins">
+    <body v-if="machineOutOfService">
         Máquina fuera de servicio.
     </body>
-    <body v-if="!userIsPaying && !notEnoughCoins">
+    <body v-if="!userIsPaying && !machineOutOfService">
         <table class="table">
             <thead>
                 <tr>
@@ -69,8 +69,8 @@
             <button class="btn btn-primary" @click="userIsPaying = !userIsPaying" style="background-color: brown;">Pagar</button>
         </div>
     </body>
-    <body v-if="userIsPaying && !notEnoughCoins">
-        <div class="d-flex justify-content-center align-items-center" style="padding: 20px;" v-if="!showChangeBreakdown && !notEnoughCoins">
+    <body v-if="userIsPaying && !machineOutOfService">
+        <div class="d-flex justify-content-center align-items-center" style="padding: 20px;" v-if="!showChangeBreakdown && !machineOutOfService">
             <div class="mr-5">
                 Total a pagar: {{ totalAmount }}
             </div>
@@ -87,7 +87,7 @@
                 <input type="number" id="25quantity" value="0" min="0" max="100" class="form-control" v-model.number="coinsUserHasInserted[25]">
             </div>
         </div>
-        <div class="d-flex justify-content-center align-items-center" style="padding: 20px; flex-direction: column; gap:15px" v-if="!showChangeBreakdown && !notEnoughCoins">
+        <div class="d-flex justify-content-center align-items-center" style="padding: 20px; flex-direction: column; gap:15px" v-if="!showChangeBreakdown && !machineOutOfService">
             <div>
                 Total: {{ AmountUserPaid }}
             </div>
@@ -95,7 +95,7 @@
                 Confirmar
             </button>
         </div>
-        <div v-if="showChangeBreakdown && !notEnoughCoins" style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh;">
+        <div v-if="showChangeBreakdown && !machineOutOfService" style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh;">
             <div style="text-align: center;">
                 Su vuelto es de {{ totalChange }} colones. <br/>
                 Desglose:
@@ -152,7 +152,7 @@
                 },
                 totalChange: 0,
                 showChangeBreakdown : false,
-                notEnoughCoins : false,
+                machineOutOfService : false,
             }
         },
         methods: {
@@ -232,7 +232,7 @@
                 }
             },
             GetMachineOutOfService() {
-                this.notEnoughCoins = true
+                this.machineOutOfService = true
                 this.showChangeBreakdown = false
                 this.userIsPaying = false
             },
