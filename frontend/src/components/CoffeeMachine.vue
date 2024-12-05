@@ -161,7 +161,7 @@
                     this.order[coffeeType] += quantity
                     this.UpdateCoffeeQuantity(coffeeType, quantity)
                 } else {
-                    alert("La cantidad ingresada supera la cantidad disponible.")
+                    alert("Cantidad inválida.")
                 }
                 this.selectedCoffee = ''
                 this.selectedQuantity = 0
@@ -179,8 +179,24 @@
             CheckAmountUserPaid() {
                 if (this.totalAmount == this.AmountUserPaid) {
                     this.CalculateChange()
+                } else if (this.totalAmount < this.AmountUserPaid) {
+                    this.CheckIfMachineHasForChange()
                 } else if (this.totalAmount > this.AmountUserPaid) {
                     alert("Cantidad insuficiente!")
+                }
+            },
+            CheckIfMachineHasForChange() {
+                const difference = this.AmountUserPaid - this.totalAmount
+                if (difference > this.AmountAvailableForChange) {
+                    alert("Fallo al realizar la compra. Sin suficientes fondos para el vuelto.")
+                    for (let coffeeType in this.order) {
+                    if (this.order[coffeeType] > 0) {
+                        this.coffeeTypes[coffeeType].quantity += this.order[coffeeType];
+                        this.FinishOperation()
+                    }
+                }
+                } else {
+                    this.CalculateChange()
                 }
             },
             CalculateChange() {
@@ -196,7 +212,22 @@
                         this.coinsAvailableForChange[denomination] -= 1
                     }
                 });
-                if (remainingChange > 0) {
+            },
+            CheckAmountOfCoffees() {
+                if (this.coffeeTypes.Americano.quantity == 0 &&
+                    this.coffeeTypes.Capuchino.quantity == 0 &&
+                    this.coffeeTypes.Late.quantity == 0 &&
+                    this.coffeeTypes.Mocachino.quantity == 0
+                ) {
+                    this.GetMachineOutOfService()
+                }
+            },
+            CheckAmountOfCoinsForChange() {
+                if (this.coinsAvailableForChange[500] == 0 &&
+                    this.coinsAvailableForChange[100] == 0 &&
+                    this.coinsAvailableForChange[50] == 0 &&
+                    this.coinsAvailableForChange[25] == 0
+                ) {
                     this.GetMachineOutOfService()
                 }
             },
@@ -204,7 +235,6 @@
                 this.notEnoughCoins = true
                 this.showChangeBreakdown = false
                 this.userIsPaying = false
-                alert("Fallo al realizar la compra.")
             },
             FinishOperation() {
                 this.showChangeBreakdown = false
@@ -230,6 +260,8 @@
                     50: 0,
                     25: 0
                 }
+                this.CheckAmountOfCoinsForChange()
+                this.CheckAmountOfCoffees()
             }
         }, 
         computed: {
@@ -239,6 +271,12 @@
                 this.coinsUserHasInserted[100] * 100 +
                 this.coinsUserHasInserted[50] * 50 +
                 this.coinsUserHasInserted[25] * 25
+            },
+            AmountAvailableForChange() {
+                return this.coinsAvailableForChange[500] * 500 +
+                this.coinsAvailableForChange[100] * 100 +
+                this.coinsAvailableForChange[50] * 50 +
+                this.coinsAvailableForChange[25] * 25
             }
         }
     }
